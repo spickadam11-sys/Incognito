@@ -10,7 +10,7 @@
     function searchUrl() {
         const currentSearch = localStorage.getItem('incog||search');
         if (!currentSearch) {
-            localStorage.setItem('incog||search', 'https://www.google.com/search?q=%s');
+          localStorage.setItem('incog||search', 'https://duckduckgo.com/?q=%s');
         }
     }
     setTheme(localStorage.getItem('incog||currentTheme') as string || 'ocean');
