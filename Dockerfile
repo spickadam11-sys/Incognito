@@ -13,7 +13,6 @@ RUN deno install --allow-scripts
 RUN deno task build
 RUN export TERM=xterm-256color
 ENV PORT="8000"
-VOLUME /app
 EXPOSE 8000
 ENTRYPOINT ["deno", "task", "start", "--color", "--server"]
 CMD ["full"]
