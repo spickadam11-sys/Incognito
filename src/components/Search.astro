@@ -23,21 +23,13 @@ import FrameManager from '@components/FrameManager.astro';
         let scram: typeof ScramjetController;
         //sets the style of the iframe and enables the little panel at the top
         async function prox(term: string, sj?: typeof ScramjetController) {
-            let url;
-            if (localStorage.getItem("incog||proxy") === "uv") {
-                url = __uv$config!.prefix + __uv$config.encodeUrl!(search(term, localStorage.getItem("incog||search") as string))
-            } 
-            else if (localStorage.getItem("incog||proxy") === "sj") {
-                url = sj.encodeUrl(search(term, localStorage.getItem("incog||search") as string));
-            }
-            const iframe = document.getElementById("iframe") as HTMLIFrameElement;
-            const frameManager = document.getElementById("framemanager") as HTMLElement;
-            frameManager.classList.remove("hidden");
-            iframe.classList.remove("hidden");
-            iframe.src = url as string || "/load";
-            if (!iframe) {
-                return; 
-            }
+           let url;
+if (localStorage.getItem("incog||proxy") === "uv") {
+    url = __uv$config!.prefix + __uv$config.encodeUrl!(search(term, (localStorage.getItem("incog||search") || "https://duckduckgo.com/?q=%s") as string))
+} 
+else if (localStorage.getItem("incog||proxy") === "sj") {
+    url = sj.encodeUrl(search(term, (localStorage.getItem("incog||search") || "https://duckduckgo.com/?q=%s") as string));
+}
         }
         document.addEventListener("DOMContentLoaded", async () => {
             scram = initServiceWorker().then(async (sj): Promise<typeof ScramjetController> => {
