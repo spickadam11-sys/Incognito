@@ -18,36 +18,42 @@ import FrameManager from '@components/FrameManager.astro';
     </div>
     <script>
         import { BareClient } from "@mercuryworkshop/bare-mux";
-        //simple script I wrote so I don't have to repeat myself (located at: src/ts/serviceWorker.ts)
         import { initServiceWorker } from "@scripts/serviceWorker.ts";
         let scram: typeof ScramjetController;
-        //sets the style of the iframe and enables the little panel at the top
+
         async function prox(term: string, sj?: typeof ScramjetController) {
-           let url;
-if (localStorage.getItem("incog||proxy") === "uv") {
-    url = __uv$config!.prefix + __uv$config.encodeUrl!(search(term, (localStorage.getItem("incog||search") || "https://duckduckgo.com/?q=%s") as string))
-} 
-else if (localStorage.getItem("incog||proxy") === "sj") {
-    url = sj.encodeUrl(search(term, (localStorage.getItem("incog||search") || "https://duckduckgo.com/?q=%s") as string));
-}
+            let url;
+            if (localStorage.getItem("incog||proxy") === "uv") {
+                url = __uv$config!.prefix + __uv$config.encodeUrl!(search(term, (localStorage.getItem("incog||search") || "https://duckduckgo.com/?q=%s") as string))
+            } 
+            else if (localStorage.getItem("incog||proxy") === "sj") {
+                url = sj.encodeUrl(search(term, (localStorage.getItem("incog||search") || "https://duckduckgo.com/?q=%s") as string));
+            }
+            const iframe = document.getElementById("iframe") as HTMLIFrameElement;
+            const frameManager = document.getElementById("framemanager") as HTMLElement;
+            frameManager.classList.remove("hidden");
+            iframe.classList.remove("hidden");
+            iframe.src = url as string || "/load";
+            if (!iframe) {
+                return; 
+            }
         }
+
         document.addEventListener("DOMContentLoaded", async () => {
             scram = initServiceWorker().then(async (sj): Promise<typeof ScramjetController> => {
                 console.log('SW active');
                 return sj;
             });
         });
-        //define all of our events and if there is a link proxy it and set the history to /
+
         document.addEventListener("astro:page-load", async function () {
             let links: URLSearchParams = new URLSearchParams(window.location.search);
             const link = links.get('link');
             const client = new BareClient();
             scram = await scram;
-            //this is in a try {} catch {} as to not pollute the console with errors
-            //it will error due to this running on every page and not just this one
             try {
                 if (link) {
-                    prox(search(localStorage.getItem("incog||proxy") === "uv" ? __uv$config.decodeUrl!(link): scram.decodeUrl(link), localStorage.getItem("incog||search") as string), scram);
+                    prox(search(localStorage.getItem("incog||proxy") === "uv" ? __uv$config.decodeUrl!(link): scram.decodeUrl(link), (localStorage.getItem("incog||search") || "https://duckduckgo.com/?q=%s") as string), scram);
                     history.pushState({}, "", "/");
                 }
                 const formInput = document.getElementById("form-input") as HTMLInputElement;
@@ -93,7 +99,7 @@ else if (localStorage.getItem("incog||proxy") === "sj") {
                                 span.id = "search-result"
                                 span.innerText = results.phrase;
                                 span.addEventListener("click", function() {
-                                    prox(results.phrase) 
+                                    prox(results.phrase, scram) 
                                 })
                                 searchSuggestions.appendChild(span);
                             })
